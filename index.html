@@ -60,15 +60,6 @@
             overflow: hidden;
         }
         
-        .stage::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 10px;
-            height: 100%;
-        }
-        
         .stage-header {
             display: flex;
             align-items: center;
@@ -98,10 +89,6 @@
             background: linear-gradient(to bottom right, #fff1f2, #ffe4e6);
         }
         
-        #baby-stage::before {
-            background: #f472b6;
-        }
-        
         #baby-stage .stage-title {
             background: #f472b6;
         }
@@ -110,10 +97,6 @@
         #child-stage {
             background: linear-gradient(to bottom right, #fef9c3, #fef08a);
             display: none;
-        }
-        
-        #child-stage::before {
-            background: #fbbf24;
         }
         
         #child-stage .stage-title {
@@ -127,10 +110,6 @@
             display: none;
         }
         
-        #teen-stage::before {
-            background: #a78bfa;
-        }
-        
         #teen-stage .stage-title {
             background: #a78bfa;
         }
@@ -139,10 +118,6 @@
         #adult-stage {
             background: linear-gradient(to bottom right, #dbeafe, #d1e0ff);
             display: none;
-        }
-        
-        #adult-stage::before {
-            background: #60a5fa;
         }
         
         #adult-stage .stage-title {
@@ -970,15 +945,12 @@
                 // Не была выбрана и не disabled - выбираем
                 state.babyTraits.push(trait);
                 card.classList.add('selected');
-            } else if (!card.classList.contains('disabled')) {
-                alert('Можно выбрать только 3 черты характера!');
-                return;
             } else {
-                // disabled - ничего не делаем
+                // Если выбрано 3, не даём выбирать больше, ничего не делаем (без alert)
                 return;
             }
 
-            // 1. Очистить все disabled
+            // 1. Сначала снять disabled со всех
             allCards.forEach(card => card.classList.remove('disabled'));
 
             // 2. Для каждой выбранной черты сделать disabled их конфликты
@@ -993,6 +965,16 @@
                     });
                 });
             });
+
+            // 3. Если выбрано уже 3 чх — все остальные (невыбранные и не disabled из-за конфликта) тоже делаем disabled
+            if (state.babyTraits.length === 3) {
+                allCards.forEach(card2 => {
+                    const name2 = card2.querySelector('span:last-child').textContent;
+                    if (!state.babyTraits.includes(name2)) {
+                        card2.classList.add('disabled');
+                    }
+                });
+            }
 
             updateBabyTraitOrderNumbers();
             updateBabyNextButton();
