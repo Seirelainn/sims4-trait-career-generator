@@ -509,14 +509,14 @@
             </div>
             
             <div class="section">
-                <div class="section-title">Шаг 1: Выберите черты характера малыша в том порядке, в котором они появлялись в игре</div>
+                <div class="section-title">Выберите 3 черты характера малыша в том порядке, в котором они появлялись в игре</div>
                 <div class="traits-container" id="baby-traits-container">
                     <!-- Traits will be populated by JS -->
                 </div>
             </div>
             
             <div class="section">
-                <div class="section-title">Шаг 2: Укажите уровень навыков, которые смог набрать малыш к моменту взросления</div>
+                <div class="section-title">Укажите уровень навыков, которые смог набрать малыш к моменту взросления</div>
                 <div class="skills-grid">
                     <div class="skill-card">
                         <div class="skill-name">Мышление</div>
@@ -1203,12 +1203,15 @@
                 title.className = 'lifegoal-title';
                 title.textContent = goal;
         
-                // ВОТ ЗДЕСЬ! Просто добавляем название цели, без чекбокса и без обработчика
                 goalCard.appendChild(title);
+        
+                // Кликабельный выбор любого количества (selected-стиль)
+                goalCard.addEventListener('click', () => {
+                    goalCard.classList.toggle('selected');
+                });
         
                 container.appendChild(goalCard);
             });
-            // Кнопка становится активной, если есть хотя бы одна ЖЦ
             document.getElementById('teen-next-btn').disabled = (goals.length === 0);
         }
 
