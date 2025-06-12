@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор SIMS 4 от Seirelainn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6a11cb 20%, #2575fc 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        .stage {
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stage::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 100%;
+        }
+        
+        .stage-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .stage-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-right: 15px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stage-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            flex: 1;
+        }
+        
+        /* Малыш (розовый) */
+        #baby-stage {
+            background: linear-gradient(to bottom right, #fff1f2, #ffe4e6);
+        }
+        
+        #baby-stage::before {
+            background: #f472b6;
+        }
+        
+        #baby-stage .stage-title {
+            background: #f472b6;
+        }
+        
+        /* Ребенок (желтый) */
+        #child-stage {
+            background: linear-gradient(to bottom right, #fef9c3, #fef08a);
+            display: none;
+        }
+        
+        #child-stage::before {
+            background: #fbbf24;
+        }
+        
+        #child-stage .stage-title {
+            background: #fbbf24;
+            color: #333;
+        }
+        
+        /* Подросток (лавандовый) */
+        #teen-stage {
+            background: linear-gradient(to bottom right, #f5f3ff, #ede9fe);
+            display: none;
+        }
+        
+        #teen-stage::before {
+            background: #a78bfa;
+        }
+        
+        #teen-stage .stage-title {
+            background: #a78bfa;
+        }
+        
+        /* Взрослый (голубой) */
+        #adult-stage {
+            background: linear-gradient(to bottom right, #dbeafe, #d1e0ff);
+            display: none;
+        }
+        
+        #adult-stage::before {
+            background: #60a5fa;
+        }
+        
+        #adult-stage .stage-title {
+            background: #60a5fa;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .skill-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .skill-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .skill-name {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .skill-levels {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .level {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            border: 2px solid transparent;
+        }
+        
+        .level:hover {
+            transform: scale(1.1);
+        }
+        
+        .level.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .traits-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .trait-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .trait-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .trait-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+
+        .trait-card.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+        
+        .lifegoals-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .lifegoal-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 200px;
+            max-width: 280px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 2px solid transparent;
+            transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s, background 0.2s, color 0.2s;
+            cursor: pointer;
+            margin: 0;
+            margin-bottom: 15px;
+        }
+
+        .lifegoal-card:hover:not(.disabled):not(.nohover) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .lifegoal-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+
+        .lifegoal-card.selected .lifegoal-title,
+        .lifegoal-card.selected .status-text {
+            color: white;
+        }
+
+        .lifegoal-card.selected .checkbox {
+            background: white;
+            color: #3b82f6;
+            border-color: #1d4ed8;
+        }
+
+        .lifegoal-card .lifegoal-title {
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: left;
+            word-break: break-word;
+            color: #333;
+            transition: color 0.2s;
+        }
+
+        .lifegoal-card .lifegoal-status-row {
+            display: flex;
+            align-items: center;
+            margin-top: 14px;
+        }
+
+        .lifegoal-card .checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 5px;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 7px;
+            background: #f9fafb;
+            color: #3b82f6;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .lifegoal-card .status-text {
+            font-size: 0.94em;
+            opacity: 0.85;
+            margin-left: 0;
+            color: #333;
+            transition: color 0.2s;
+        }
+
+        .lifegoal-card.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
+        .lifegoals-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            justify-items: start;
+            justify-content: start;
+        }
+
+        .lifegoal-card.nohover {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 2px solid #F471B5;
+            min-width: unset;
+            max-width: unset;
+            width: 100%;
+            margin: 0;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            font-size: 1.12rem;
+            text-align: center;
+            color: #333;
+        }
+        }
+        
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 5px;
+            border: 2px solid #cbd5e1;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+        }
+        
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .result-content {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e40af;
+        }
+        
+        .career-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .career-category {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .career-name {
+            font-weight: 500;
+            padding: 5px 0;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .center {
+            text-align: center;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .stage {
+                padding: 20px 15px;
+            }
+            
+            .stage-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .stage-title {
+                margin-bottom: 15px;
+            }
+            
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SIMS 4: Генератор</h1>
+        <p class="subtitle">черт характера, жизненных целей и карьер</p>
+    </header>
+    
+    <div class="container">
+        <!-- Этап 1: Малыш -->
+        <div class="stage fade-in" id="baby-stage">
+            <div class="stage-header">
+                <div class="stage-title">Малыш</div>
+                <div class="stage-description">В дополнении "Жизненный путь" у малышей появились черты характера, которые рандомно появляются во время игры. </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Шаг 1: Выберите черты характера малыша в том порядке, в котором они появлялись в игре</div>
+                <div class="traits-container" id="baby-traits-container">
+                    <!-- Traits will be populated by JS -->
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Шаг 2: Укажите уровень навыков, которые смог набрать малыш к моменту взросления</div>
+                <div class="skills-grid">
+                    <div class="skill-card">
+                        <div class="skill-name">Мышление</div>
+                        <div class="skill-levels" id="thinking-levels">
+                            <!-- Levels will be populated by JS -->
+                        </div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="skill-name">Передвижение</div>
+                        <div class="skill-levels" id="movement-levels">
+                            <!-- Levels will be populated by JS -->
+                        </div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="skill-name">Общение</div>
+                        <div class="skill-levels" id="communication-levels">
+                            <!-- Levels will be populated by JS -->
+                        </div>
+                    </div>
+                    <div class="skill-card">
+                        <div class="skill-name">Воображение</div>
+                        <div class="skill-levels" id="imagination-levels">
+                            <!-- Levels will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="center">
+                <button class="btn" id="baby-next-btn" disabled>Перейти к этапу "Ребенок"</button>
+            </div>
+        </div>
+        
+        <!-- Этап 2: Ребенок -->
+        <div class="stage" id="child-stage">
+            <div class="stage-header">
+                <div class="stage-title">Ребенок</div>
+                <div class="stage-description">Выберите жизненную цель и получите первую черту характера</div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Доступные жизненные цели</div>
+                <div class="lifegoals-container" id="child-lifegoals-container">
+                    <!-- Child life goals will be populated by JS -->
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Первая черта характера</div>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-title">На основе первой черты малыша</div>
+                        <div class="result-content" id="adult-trait-1">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="center">
+                <button class="btn" id="child-next-btn" disabled>Перейти к этапу "Подросток"</button>
+            </div>
+        </div>
+        
+        <!-- Этап 3: Подросток -->
+        <div class="stage" id="teen-stage">
+            <div class="stage-header">
+                <div class="stage-title">Подросток</div>
+                <div class="stage-description">Выберите жизненную цель и получите вторую черту характера</div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Доступные жизненные цели</div>
+                <div class="lifegoals-container" id="adult-lifegoals-container">
+                    <!-- Adult life goals will be populated by JS -->
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Вторая черта характера</div>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-title">На основе второй черты малыша</div>
+                        <div class="result-content" id="adult-trait-2">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="center">
+                <button class="btn" id="teen-next-btn" disabled>Перейти к этапу "Взрослый"</button>
+            </div>
+        </div>
+        
+        <!-- Этап 4: Взрослый -->
+        <div class="stage" id="adult-stage">
+            <div class="stage-header">
+                <div class="stage-title">Взрослый</div>
+                <div class="stage-description">Ваш персонаж вырос! Вот его черты характера и возможные карьеры</div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Черты характера</div>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-title">Черта 1</div>
+                        <div class="result-content" id="final-trait-1">-</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-title">Черта 2</div>
+                        <div class="result-content" id="final-trait-2">-</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-title">Черта 3</div>
+                        <div class="result-content" id="final-trait-3">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">Рекомендуемые карьеры</div>
+                <div class="results-grid">
+                    <div class="career-card">
+                        <div class="career-category">Закрытая карьера</div>
+                        <div class="career-name" id="career-1">-</div>
+                    </div>
+                    <div class="career-card">
+                        <div class="career-category">Полуоткрытая карьера</div>
+                        <div class="career-name" id="career-2">-</div>
+                    </div>
+                    <div class="career-card">
+                        <div class="career-category">Открытая карьера</div>
+                        <div class="career-name" id="career-3">-</div>
+                    </div>
+                    <div class="career-card">
+                        <div class="career-category">Неполный рабочий день</div>
+                        <div class="career-name" id="career-4">-</div>
+                    </div>
+                    <div class="career-card">
+                        <div class="career-category">Фриланс</div>
+                        <div class="career-name" id="career-5">-</div>
+                    </div>
+                    <div class="career-card">
+                        <div class="career-category">Бизнес</div>
+                        <div class="career-name" id="career-6">-</div>
+                    </div>
+                    <div class="career-card">
+                        <div class="career-category">Индивидуальный предприниматель</div>
+                        <div class="career-name" id="career-7">-</div>
+                    </div>
+                    <div class="career-card">
+                        <div class="career-category">Другое</div>
+                        <div class="career-name" id="career-8">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="center">
+                <button class="btn" id="restart-btn">Начать заново</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Таблица соответствий ЧХ (малыш - взрослый)
+        const traitsTable = [
+            { baby: "Агрессия", adult: "Холерик", contradicts: ["Веселый", "Угрюмый"], forChildren: true },
+            { baby: "Агрессия", adult: "Злой", contradicts: ["Вечное дитя", "Добрый", "Щедрый"], forChildren: true },
+            { baby: "Агрессия", adult: "Задира", contradicts: ["Добрый", "Уважительный", "Щедрый"], forChildren: true },
+            { baby: "Агрессия", adult: "Самоуверенный", contradicts: [], forChildren: true },
+            { baby: "Бродяга", adult: "Любопытный", contradicts: [], forChildren: false },
+            { baby: "Бродяга", adult: "Одиночка", contradicts: ["Дружелюбный", "Инсайдер"], forChildren: true },
+            { baby: "Бродяга", adult: "Недотрога", contradicts: ["Романтик"], forChildren: false },
+            { baby: "Бродяга", adult: "Непостоянный", contradicts: ["Семьянин"], forChildren: false },
+            { baby: "Крепко спит", adult: "Лежебока", contradicts: ["Активный", "Карьерист", "Чистюля", "Отважный", "Умелец", "Любовь к ранчо", "Достигатор"], forChildren: true },
+            { baby: "Крепко спит", adult: "Щедрый", contradicts: ["Практичный", "Обжора", "Злой", "Задира"], forChildren: false },
+            { baby: "Крепко спит", adult: "Кринжовый", contradicts: ["Уважительный"], forChildren: false },
+            { baby: "Крепко спит", adult: "Неловкий в общении", contradicts: [], forChildren: false },
+            { baby: "Любит воду", adult: "Любит природу", contradicts: ["Привереда"], forChildren: true },
+            { baby: "Любит воду", adult: "Растяпа", contradicts: ["Скептик"], forChildren: true },
+            { baby: "Любит воду", adult: "Дитя острова", contradicts: ["Тяга к корням"], forChildren: true },
+            { baby: "Любит воду", adult: "Дитя океана", contradicts: [], forChildren: true },
+            { baby: "Любит звуки", adult: "Вечное дитя", contradicts: ["Злой", "Против детей", "Скептик"], forChildren: false },
+            { baby: "Любит звуки", adult: "Меломан", contradicts: [], forChildren: true },
+            { baby: "Любит звуки", adult: "Танцмашина", contradicts: [], forChildren: false },
+            { baby: "Любит звуки", adult: "Творец", contradicts: [], forChildren: true },
+            { baby: "Любит книги", adult: "Гений", contradicts: [], forChildren: true },
+            { baby: "Любит книги", adult: "Книжный червь", contradicts: [], forChildren: true },
+            { baby: "Любит книги", adult: "Перфекционист", contradicts: [], forChildren: true },
+            { baby: "Любит книги", adult: "Эксцентричный", contradicts: [], forChildren: true },
+            { baby: "Любит петь", adult: "Душа компании", contradicts: [], forChildren: false },
+            { baby: "Любит петь", adult: "Искусствовед", contradicts: [], forChildren: true },
+            { baby: "Любит петь", adult: "Свой в доску", contradicts: [], forChildren: false },
+            { baby: "Любит петь", adult: "Творец", contradicts: [], forChildren: true },
+            { baby: "Любит просыпаться", adult: "Добрый", contradicts: ["Задира", "Злой", "Клептоман"], forChildren: true },
+            { baby: "Любит просыпаться", adult: "Дружелюбный", contradicts: ["Одиночка", "Параноик"], forChildren: true },
+            { baby: "Любит просыпаться", adult: "Веселый", contradicts: ["Угрюмый", "Холерик"], forChildren: true },
+            { baby: "Любит просыпаться", adult: "Экоэнтузиаст", contradicts: [], forChildren: true },
+            { baby: "Любит разрушения", adult: "Против детей", contradicts: ["Вечное дитя", "Семьянин"], forChildren: false },
+            { baby: "Любит разрушения", adult: "Переработчик", contradicts: [], forChildren: true },
+            { baby: "Любит разрушения", adult: "Самоуверенный", contradicts: [], forChildren: true },
+            { baby: "Любит разрушения", adult: "Чудаковатый", contradicts: [], forChildren: true },
+            { baby: "Любит, когда берут на руки", adult: "Романтик", contradicts: ["Недотрога"], forChildren: false },
+            { baby: "Любит, когда берут на руки", adult: "Семьянин", contradicts: ["Непостоянный", "Против детей"], forChildren: false },
+            { baby: "Любит, когда берут на руки", adult: "Инсайдер", contradicts: ["Одиночка"], forChildren: true },
+            { baby: "Любит, когда берут на руки", adult: "Эгоцентричный", contradicts: [], forChildren: false },
+            { baby: "Неаккуратно ест", adult: "Фриган", contradicts: ["Гурман", "Карьерист", "Практичный", "Привереда", "Скептик"], forChildren: false },
+            { baby: "Неаккуратно ест", adult: "Неряха", contradicts: ["Привереда", "Чистюля", "Уважительный"], forChildren: true },
+            { baby: "Неаккуратно ест", adult: "Растяпа", contradicts: ["Скептик"], forChildren: true },
+            { baby: "Неаккуратно ест", adult: "Неуклюжий", contradicts: ["Умелец"], forChildren: false },
+            { baby: "Ненавидит просыпаться", adult: "Лежебока", contradicts: ["Активный", "Карьерист", "Чистюля", "Отважный", "Умелец", "Любовь к ранчо", "Достигатор"], forChildren: true },
+            { baby: "Ненавидит просыпаться", adult: "Угрюмый", contradicts: ["Веселый", "Холерик"], forChildren: true },
+            { baby: "Ненавидит просыпаться", adult: "Скептик", contradicts: ["Вечное дитя", "Растяпа", "Фриган"], forChildren: false },
+            { baby: "Ненавидит просыпаться", adult: "Привереда", contradicts: ["Любит природу", "Неряха", "Обжора", "Фриган"], forChildren: true },
+            { baby: "Ненавидит спать", adult: "Параноик", contradicts: ["Дружелюбный"], forChildren: false },
+            { baby: "Ненавидит спать", adult: "Активный", contradicts: ["Лежебока"], forChildren: true },
+            { baby: "Ненавидит спать", adult: "Отважный", contradicts: ["Лежебока"], forChildren: true },
+            { baby: "Ненавидит спать", adult: "Умелец", contradicts: ["Лежебока", "Неуклюжий"], forChildren: false },
+            { baby: "Ненавидит, когда берут на руки", adult: "Недотрога", contradicts: ["Романтик"], forChildren: false },
+            { baby: "Ненавидит, когда берут на руки", adult: "Любит кошек", contradicts: [], forChildren: true },
+            { baby: "Ненавидит, когда берут на руки", adult: "Любит собак", contradicts: [], forChildren: true },
+            { baby: "Ненавидит, когда берут на руки", adult: "Любовь к лошадям", contradicts: [], forChildren: true },
+            { baby: "Привереда в еде", adult: "Вегетарианец", contradicts: [], forChildren: true },
+            { baby: "Привереда в еде", adult: "Высокие запросы", contradicts: [], forChildren: false },
+            { baby: "Привереда в еде", adult: "Любовь к животным", contradicts: [], forChildren: true },
+            { baby: "Привереда в еде", adult: "Непереносимость лактозы", contradicts: [], forChildren: true },
+            { baby: "Ранняя пташка", adult: "Достигатор", contradicts: ["Лежебока"], forChildren: false },
+            { baby: "Ранняя пташка", adult: "Чистюля", contradicts: ["Лежебока", "Неряха"], forChildren: true },
+            { baby: "Ранняя пташка", adult: "Карьерист", contradicts: ["Лежебока", "Фриган"], forChildren: false },
+            { baby: "Ранняя пташка", adult: "Практичный", contradicts: ["Фриган", "Щедрый"], forChildren: false },
+            { baby: "Хороший аппетит", adult: "Обжора", contradicts: ["Гурман", "Привереда", "Щедрый"], forChildren: true },
+            { baby: "Хороший аппетит", adult: "Клептоман", contradicts: ["Добрый"], forChildren: true },
+            { baby: "Хороший аппетит", adult: "Любовь к ранчо", contradicts: ["Лежебока"], forChildren: false },
+            { baby: "Хороший аппетит", adult: "Гурман", contradicts: ["Обжора", "Фриган"], forChildren: false },
+            { baby: "Чутко спит", adult: "Тяга к корням", contradicts: ["Дитя острова"], forChildren: true },
+            { baby: "Чутко спит", adult: "Уважительный", contradicts: ["Неряха", "Задира", "Кринжовый"], forChildren: true },
+            { baby: "Чутко спит", adult: "Преданный", contradicts: [], forChildren: false },
+            { baby: "Чутко спит", adult: "Ревнивый", contradicts: [], forChildren: false }
+        ];
+
+        // Данные для скрипта
+        const babyTraits = Array.from(new Set(traitsTable.map(t => t.baby)));
+
+        // Конфликтующие черты малышей
+        const babyTraitConflicts = {
+            "Любит просыпаться": ["Ненавидит просыпаться"],
+            "Ненавидит просыпаться": ["Любит просыпаться", "Ранняя пташка"],
+            "Любит, когда берут на руки": ["Ненавидит, когда берут на руки"],
+            "Ненавидит, когда берут на руки": ["Любит, когда берут на руки"],
+            "Неаккуратно ест": ["Привереда в еде"],
+            "Привереда в еде": ["Хороший аппетит", "Неаккуратно ест"],
+            "Ранняя пташка": ["Ненавидит просыпаться"],
+            "Хороший аппетит": ["Привереда в еде"],
+            "Крепко спит": ["Чутко спит"],
+            "Чутко спит": ["Крепко спит"]
+        };
+        
+        const childLifeGoals = {
+            "5 мышление": "Вундеркинд",
+            "5 передвижение": "Непослушный проказник",
+            "5 общение": "Светский львенок",
+            "5 воображение": "Творческое дарование",
+            "4 мышление,3 передвижение": "Душа и тело",
+            "4 общение,3 воображение": "Душа пижамной вечеринки",
+            "4 передвижение,3 общение": "Жизнь как игра",
+            "4 воображение,3 мышление": "Творческий взгляд"
+        };
+        
+        const adultLifeGoals = {
+            "Вундеркинд": ["Академик", "Мозговитый чудак", "Специалист по археологии", "Человек эпохи Возрождения", "Любитель свежего воздуха", "Рыбак-ас"],
+            "Душа и тело": ["Душевное равновесие", "Специалист сферы заботы о себе", "Учитель дзен", "Коренной горожанин", "Пляжная жизнь", "Исследователь джунглей"],
+            "Душа пижамной вечеринки": ["Жареный сыр", "Лучший бармен", "Шеф-повар", "Родственная душа", "Турист на горе Комореби", "Душа компании"],
+            "Жизнь как игра": ["Подлый партнер", "Главарь", "Куратор", "Супер-родитель", "Счастливая семья", "Хорошая наследственность"],
+            "Непослушный проказник": ["Большой бедокур", "Враг народа", "Друг животных", "Культурист", "Любитель экстрима", "Чемпионская езда"],
+            "Светский львенок": ["Серийный романтик", "Мировой друг", "Надежный сосед", "Популярный шутник", "Сельский смотритель", "Эконоватор"],
+            "Творческий взгляд": ["Компьютерный гений", "Барон", "Сказочное богатство", "Исключительный художник", "Опытный актер", "Популярный автор"],
+            "Творческое дарование": ["Эксперт по нектару", "Мировая знаменитость", "Независимый ботаник", "Искусный мастер", "Музыкальный талант", "Повелитель вязания"]
+        };
+        
+        
+        const careers = {
+            "Закрытая карьера": ["Бизнесмен", "Исполнитель", "Космонавт", "Кулинар", "Писатель", "Преступник", "Спортсмен", "Тайный агент", "Технический специалист", "Художник"],
+            "Полуоткрытая карьера": ["Военный служащий", "Законодатель стиля", "Инженер", "Критик", "Политик", "Преподаватель", "Садовод", "Сарариман", "Социальные сети", "Строительный инженер", "Эколог", "Юрист"],
+            "Открытая карьера": ["Актер", "Детектив", "Дизайнер интерьера", "Доктор", "Ученый"],
+            "Неполный рабочий день": ["Бармен", "Водолаз", "Игровой стример", "Няня", "Официант", "Продавец", "Разнорабочий", "Рыболов", "Симфлюэнсер", "Спасатель"],
+            "Фриланс": ["Внештатный корреспондент", "Внештатный программист", "Внештатный производитель", "Графический дизайнер", "Модный фотограф", "Паранормальный сыщик"],
+            "Бизнес": ["Ветеринарная клиника", "Магазин", "Ресторан", "Съемное жилье"],
+            "Индивидуальный предприниматель": ["Животновод", "Кулинарная ярмарка", "Мастер вязания и вышивания", "Медиа-ремиксер", "Механик-изобретатель", "Модельер одежды", "Частный писатель", "Частный программист", "Производитель нектара/сока", "Робототехник", "Частный рыболов", "Частный садовод", "Частный флорист", "Частный фотограф", "Хакерство", "Частный художник", "Эко-производитель"],
+            "Другое": ["Археологические раскопки", "Ведение блога", "Диджей", "Заводчик домашних животных", "Задания в Хэнфорд-он-Бэгли", "Игровые турниры", "Исследование пещер на острове", "Конные соревнования", "Мастер маникюра и массажа", "Медиа-видео-блогер", "Общественные работы на ранчо", "Подработка", "Стендап комик", "Тренер йоги", "Уличный музыкант"]
+        };
+        
+        const traitCareers = {
+            "Активный": ["Космонавт", "Спасатель", "Спортсмен", "Эколог"],
+            "Вегетарианец": ["Кулинар", "Официант", "Критик", "Кулинарная ярмарка", "Частный садовод"],
+            "Веселый": ["Симфлюэнсер", "Социальные сети", "Медиа-видео-блогер", "Стендап комик"],
+            "Вечное дитя": ["Няня", "Исполнитель", "Стендап комик", "Социальные сети"],
+            "Высокие запросы": ["Тренер йоги", "Мастер маникюра и массажа", "Модельер одежды", "Частный флорист"],
+            "Гений": ["Хакерство", "Ученый", "Детектив", "Доктор", "Преподаватель", "Строительный инженер", "Инженер", "Юрист", "Внештатный программист", "Технический специалист"],
+            "Гурман": ["Кулинар", "Официант", "Критик", "Кулинарная ярмарка", "Частный садовод"],
+            "Дитя океана": ["Исследование пещер на острове", "Спасатель", "Водолаз", "Эколог", "Частный рыболов"],
+            "Дитя острова": ["Рыболов", "Частный рыболов", "Спасатель", "Эколог", "Частный рыболов"],
+            "Добрый": ["Няня", "Доктор", "Подработка", "Задания в Хэнфорд-он-Бэгли", "Частный флорист"],
+            "Достигатор": ["Бизнесмен", "Военный служащий", "Исполнитель", "Законодатель стиля", "Космонавт", "Инженер", "Кулинар", "Писатель", "Политик", "Преступник", "Преподаватель", "Спортсмен", "Садовод", "Тайный агент", "Сарариман", "Технический специалист", "Социальные сети", "Художник", "Строительный инженер", "Юрист"],
+            "Дружелюбный": ["Задания в Хэнфорд-он-Бэгли", "Спасатель", "Преподаватель", "Няня", "Бармен"],
+            "Душа компании": ["Исполнитель", "Диджей", "Бармен", "Актер", "Няня", "Симфлюэнсер", "Ресторан", "Стендап комик"],
+            "Задира": ["Преступник", "Военный служащий", "Спортсмен", "Разнорабочий", "Подработка"],
+            "Злой": ["Преступник", "Подработка", "Бизнесмен", "Доктор", "Критик", "Политик", "Ученый"],
+            "Инсайдер": ["Тайный агент", "Политик", "Бизнесмен", "Преступник"],
+            "Искусствовед": ["Ведение блога", "Художник", "Дизайнер интерьера", "Частный художник", "Частный флорист"],
+            "Карьерист": ["Бизнесмен", "Военный служащий", "Исполнитель", "Законодатель стиля", "Космонавт", "Инженер", "Кулинар", "Писатель", "Политик", "Преступник", "Преподаватель", "Спортсмен", "Садовод", "Тайный агент", "Сарариман", "Технический специалист", "Социальные сети", "Художник", "Строительный инженер", "Юрист"],
+            "Клептоман": ["Преступник", "Магазин", "Археологические раскопки", "Исследование пещер на острове"],
+            "Книжный червь": ["Писатель", "Частный писатель", "Внештатный корреспондент", "Законодатель стиля", "Критик", "Сарариман", "Социальные сети"],
+            "Кринжовый": ["Ведение блога", "Медиа-видео-блогер", "Стендап комик", "Игровые турниры", "Медиа-ремиксер", "Паранормальный сыщик", "Симфлюэнсер", "Игровой стример"],
+            "Лежебока": ["Ведение блога", "Игровые турниры", "Подработка", "Игровой стример", "Симфлюэнсер"],
+            "Любит кошек": ["Ветеринарная клиника", "Заводчик домашних животных"],
+            "Любит природу": ["Археологические раскопки", "Задания в Хэнфорд-он-Бэгли", "Исследование пещер на острове", "Садовод", "Частный садовод", "Рыболов", "Частный рыболов", "Животновод", "Эколог"],
+            "Любит собак": ["Ветеринарная клиника", "Заводчик домашних животных"],
+            "Любовь к животным": ["Ветеринарная клиника", "Заводчик домашних животных", "Животновод"],
+            "Любовь к лошадям": ["Конные соревнования", "Животновод", "Общественные работы на ранчо", "Ветеринарная клиника", "Конные соревнования"],
+            "Любовь к ранчо": ["Общественные работы на ранчо", "Животновод", "Производитель нектара/сока", "Частный садовод", "Конные соревнования"],
+            "Любопытный": ["Задания в Хэнфорд-он-Бэгли", "Внештатный корреспондент", "Критик", "Социальные сети", "Законодатель стиля", "Частный фотограф", "Модный фотограф"],
+            "Меломан": ["Исполнитель", "Медиа-ремиксер", "Уличный музыкант", "Диджей"],
+            "Недотрога": ["Археологические раскопки", "Исследование пещер на острове", "Юрист", "Космонавт", "Уличный музыкант"],
+            "Неловкий в общении": ["Садовод", "Разнорабочий", "Внештатный программист", "Графический дизайнер", "Игровые турниры"],
+            "Непереносимость лактозы": ["Ресторан", "Производитель нектара/сока", "Бармен", "Кулинар"],
+            "Непостоянный": ["Актер", "Симфлюэнсер", "Диджей", "Уличный музыкант", "Частный писатель"],
+            "Неряха": ["Механик-изобретатель", "Эко-производитель", "Частный художник", "Художник", "Подработка", "Разнорабочий"],
+            "Неуклюжий": ["Детектив", "Продавец", "Внештатный программист", "Графический дизайнер"],
+            "Обжора": ["Кулинар", "Официант", "Ресторан", "Кулинарная ярмарка", "Подработка"],
+            "Одиночка": ["Детектив", "Водолаз", "Внештатный программист", "Мастер вязания и вышивания", "Хакерство"],
+            "Отважный": ["Спасатель", "Военный служащий", "Космонавт", "Тайный агент"],
+            "Параноик": ["Военный служащий", "Тайный агент", "Бизнесмен", "Паранормальный сыщик", "Детектив"],
+            "Переработчик": ["Эколог", "Внештатный производитель", "Магазин", "Механик-изобретатель", "Эко-производитель"],
+            "Перфекционист": ["Мастер вязания и вышивания", "Медиа-ремиксер", "Механик-изобретатель", "Модельер одежды", "Частный писатель", "Производитель нектара/сока", "Робототехник", "Частный флорист", "Частный фотограф", "Частный художник", "Эко-производитель", "Модный фотограф", "Внештатный производитель"],
+            "Практичный": ["Дизайнер интерьера", "Магазин", "Юрист", "Бизнесмен", "Кулинарная ярмарка", "Общественные работы на ранчо"],
+            "Преданный": ["Преподаватель", "Военный служащий", "Няня", "Спасатель", "Общественные работы на ранчо"],
+            "Привереда": ["Критик", "Эколог", "Модельер одежды", "Модный фотограф", "Частный художник"],
+            "Против детей": ["Продавец", "Игровой стример", "Внештатный программист", "Частный программист", "Заводчик домашних животных"],
+            "Растяпа": ["Исполнитель", "Актер", "Симфлюэнсер", "Стендап комик", "Ведение блога", "Медиа-видео-блогер"],
+            "Ревнивый": ["Детектив", "Продавец", "Разнорабочий", "Частный программист", "Хакерство"],
+            "Романтик": ["Дизайнер интерьера", "Бармен", "Графический дизайнер", "Мастер вязания и вышивания", "Модельер одежды"],
+            "Самоуверенный": ["Модельер одежды", "Конные соревнования", "Магазин", "Ресторан"],
+            "Свой в доску": ["Съемное жилье", "Дизайнер интерьера", "Бармен", "Внештатный корреспондент", "Частный фотограф"],
+            "Семьянин": ["Сарариман", "Продавец", "Съемное жилье", "Мастер вязания и вышивания", "Тренер йоги"],
+            "Скептик": ["Критик", "Кулинар", "Писатель", "Внештатный корреспондент", "Ресторан", "Частный писатель", "Ведение блога"],
+            "Танцмашина": ["Диджей", "Медиа-видео-блогер", "Симфлюэнсер", "Актер"],
+            "Творец": ["Медиа-ремиксер", "Диджей", "Уличный музыкант", "Медиа-видео-блогер", "Модный фотограф", "Исполнитель"],
+            "Тяга к корням": ["Съемное жилье", "Исследование пещер на острове", "Водолаз", "Эколог", "Археологические раскопки"],
+            "Уважительный": ["Сарариман", "Официант", "Частный программист", "Тренер йоги", "Мастер маникюра и массажа"],
+            "Угрюмый": ["Паранормальный сыщик", "Писатель", "Ученый", "Подработка", "Хакерство"],
+            "Умелец": ["Механик-изобретатель", "Производитель нектара/сока", "Робототехник", "Эко-производитель", "Магазин", "Внештатный производитель", "Строительный инженер"],
+            "Фриган": ["Эко-производитель", "Производитель нектара/сока", "Механик-изобретатель", "Внештатный производитель", "Строительный инженер"],
+            "Холерик": ["Преступник", "Бизнесмен", "Военный служащий", "Доктор", "Ученый"],
+            "Чистюля": ["Дизайнер интерьера", "Рыболов", "Графический дизайнер", "Съемное жилье"],
+            "Чудаковатый": ["Робототехник", "Инженер", "Паранормальный сыщик", "Разнорабочий"],
+            "Щедрый": ["Задания в Хэнфорд-он-Бэгли", "Рыболов", "Тренер йоги", "Мастер маникюра и массажа", "Частный фотограф"],
+            "Эгоцентричный": ["Актер", "Законодатель стиля", "Критик", "Симфлюэнсер", "Медиа-видео-блогер", "Ведение блога"],
+            "Экоэнтузиаст": ["Эколог", "Эко-производитель", "Водолаз", "Исследование пещер на острове", "Частный садовод"],
+            "Эксцентричный": ["Технический специалист", "Игровой стример", "Игровые турниры", "Робототехник", "Частный программист"]
+        };
+
+        // Состояние приложения
+        const state = {
+            babyTraits: [],
+            skills: {
+                thinking: null,
+                movement: null,
+                communication: null,
+                imagination: null
+            },
+            childLifeGoals: [],
+            adultTrait1: "",
+            adultLifeGoal: "",
+            adultTrait2: "",
+            adultTrait3: "",
+            careers: []
+        };
+
+        // --------- Инициализация ---------
+        document.addEventListener('DOMContentLoaded', () => {
+            initBabyTraits();
+            initSkillLevels();
+            setupEventListeners();
+        });
+
+        function initBabyTraits() {
+            const container = document.getElementById('baby-traits-container');
+            babyTraits.forEach(trait => {
+                const traitCard = document.createElement('div');
+                traitCard.className = 'trait-card';
+                const orderSpan = document.createElement('span');
+                orderSpan.className = 'trait-order';
+                traitCard.appendChild(orderSpan);
+                const traitText = document.createElement('span');
+                traitText.textContent = trait;
+                traitCard.appendChild(traitText);
+
+                traitCard.addEventListener('click', () => selectBabyTrait(traitCard, trait));
+                container.appendChild(traitCard);
+            });
+        }
+        
+        // Выбор черты малыша
+        function updateBabyTraitOrderNumbers() {
+            const cards = document.querySelectorAll('#baby-traits-container .trait-card');
+            cards.forEach(card => {
+                const traitText = card.querySelector('span:last-child').textContent;
+                const orderSpan = card.querySelector('.trait-order');
+                const idx = state.babyTraits.indexOf(traitText);
+                if (idx !== -1) {
+                    orderSpan.textContent = (idx + 1) + '. ';
+                } else {
+                    orderSpan.textContent = '';
+                }
+            });
+        }
+
+        // Функция обновления номеров
+        function selectBabyTrait(card, trait) {
+            const container = document.getElementById('baby-traits-container');
+            const allCards = Array.from(container.querySelectorAll('.trait-card'));
+            const traitNames = allCards.map(c => c.querySelector('span:last-child').textContent);
+
+            // Если уже выбрана - снимаем выбор
+            if (state.babyTraits.includes(trait)) {
+                state.babyTraits = state.babyTraits.filter(t => t !== trait);
+                card.classList.remove('selected');
+            } else if (state.babyTraits.length < 3 && !card.classList.contains('disabled')) {
+                // Не была выбрана и не disabled - выбираем
+                state.babyTraits.push(trait);
+                card.classList.add('selected');
+            } else if (!card.classList.contains('disabled')) {
+                alert('Можно выбрать только 3 черты характера!');
+                return;
+            } else {
+                // disabled - ничего не делаем
+                return;
+            }
+
+            // 1. Очистить все disabled
+            allCards.forEach(card => card.classList.remove('disabled'));
+
+            // 2. Для каждой выбранной черты сделать disabled их конфликты
+            state.babyTraits.forEach(selTrait => {
+                const conflicts = babyTraitConflicts[selTrait] || [];
+                conflicts.forEach(conflictTrait => {
+                    allCards.forEach(card2 => {
+                        const name2 = card2.querySelector('span:last-child').textContent;
+                        if (name2 === conflictTrait && !state.babyTraits.includes(conflictTrait)) {
+                            card2.classList.add('disabled');
+                        }
+                    });
+                });
+            });
+
+            updateBabyTraitOrderNumbers();
+            updateBabyNextButton();
+        }
+
+        // Инициализация шкал навыков
+        function initSkillLevels() {
+            for (let i = 0; i <= 5; i++) {
+                const thinkingLevel = createLevelElement(i, 'thinking');
+                document.getElementById('thinking-levels').appendChild(thinkingLevel);
+                const movementLevel = createLevelElement(i, 'movement');
+                document.getElementById('movement-levels').appendChild(movementLevel);
+                const communicationLevel = createLevelElement(i, 'communication');
+                document.getElementById('communication-levels').appendChild(communicationLevel);
+                const imaginationLevel = createLevelElement(i, 'imagination');
+                document.getElementById('imagination-levels').appendChild(imaginationLevel);
+            }
+        }
+
+        // Создание элемента уровня навыка
+        function createLevelElement(level, skill) {
+            const levelElement = document.createElement('div');
+            levelElement.className = 'level';
+            levelElement.textContent = level;
+            levelElement.addEventListener('click', () => selectSkillLevel(levelElement, level, skill));
+            return levelElement;
+        }
+
+        // Выбор уровня навыка, Сброс выбранных уровней, Установка нового уровня, Обновление состояния кнопки
+        function selectSkillLevel(element, level, skill) {
+            const parent = element.parentElement;
+            const siblings = parent.querySelectorAll('.level');
+            siblings.forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            state.skills[skill] = level;
+            updateBabyNextButton();
+        }
+
+        // Обновление состояния кнопки перехода
+        function updateBabyNextButton() {
+            const btn = document.getElementById('baby-next-btn');
+            const traitsSelected = state.babyTraits.length === 3;
+            const skillsSelected = state.skills.thinking !== null &&
+                                state.skills.movement !== null &&
+                                state.skills.communication !== null &&
+                                state.skills.imagination !== null;
+            btn.disabled = !(traitsSelected && skillsSelected);
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            document.getElementById('baby-next-btn').addEventListener('click', () => {
+                calculateChildLifeGoals();
+                calculateFirstAdultTrait();
+                document.getElementById('child-stage').style.display = 'block';
+                document.getElementById('child-stage').classList.add('fade-in');
+                document.getElementById('child-stage').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.getElementById('child-next-btn').addEventListener('click', () => {
+                calculateAdultLifeGoals();
+                calculateSecondAdultTrait();
+                document.getElementById('teen-stage').style.display = 'block';
+                document.getElementById('teen-stage').classList.add('fade-in');
+                document.getElementById('teen-stage').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.getElementById('teen-next-btn').addEventListener('click', () => {
+                calculateThirdAdultTrait();
+                calculateCareers();
+                document.getElementById('adult-stage').style.display = 'block';
+                document.getElementById('adult-stage').classList.add('fade-in');
+                document.getElementById('adult-stage').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.getElementById('restart-btn').addEventListener('click', () => {
+                location.reload();
+            });
+        }
+
+        // Расчет детских жизненных целей на основе навыков
+        function calculateChildLifeGoals() {
+            const goals = [];
+            const skills = state.skills;
+            if (skills.thinking >= 5) goals.push(childLifeGoals["5 мышление"]);
+            if (skills.movement >= 5) goals.push(childLifeGoals["5 передвижение"]);
+            if (skills.communication >= 5) goals.push(childLifeGoals["5 общение"]);
+            if (skills.imagination >= 5) goals.push(childLifeGoals["5 воображение"]);
+            if (skills.thinking >= 4 && skills.movement >= 3)
+                goals.push(childLifeGoals["4 мышление,3 передвижение"]);
+            if (skills.communication >= 4 && skills.imagination >= 3)
+                goals.push(childLifeGoals["4 общение,3 воображение"]);
+            if (skills.movement >= 4 && skills.communication >= 3)
+                goals.push(childLifeGoals["4 передвижение,3 общение"]);
+            if (skills.imagination >= 4 && skills.thinking >= 3)
+                goals.push(childLifeGoals["4 воображение,3 мышление"]);
+            state.childLifeGoals = [...new Set(goals)];
+            renderChildLifeGoals();
+        }
+
+        // Отображение детских жизненых целей
+            function renderChildLifeGoals() {
+                const container = document.getElementById('child-lifegoals-container');
+                container.innerHTML = '';
+
+                if (state.childLifeGoals.length === 0) {
+                    // Нет доступных ЖЦ — показываем заглушку с нужным стилем
+                    const failCard = document.createElement('div');
+                    failCard.className = 'lifegoal-card nohover';
+                    failCard.textContent = "Вы не можете выполнять детские жизненные цели, так как не набрали достаточно навыков!";
+                    container.appendChild(failCard);
+                    document.getElementById('child-next-btn').disabled = false;
+                    return;
+                }
+
+                state.childLifeGoals.forEach(goal => {
+                    const goalCard = document.createElement('div');
+                    goalCard.className = 'lifegoal-card';
+
+                    const title = document.createElement('div');
+                    title.className = 'lifegoal-title';
+                    title.textContent = goal;
+
+                    const statusRow = document.createElement('div');
+                    statusRow.className = 'lifegoal-status-row';
+
+                    const checkbox = document.createElement('div');
+                    checkbox.className = 'checkbox';
+
+                    const statusText = document.createElement('span');
+                    statusText.className = 'status-text';
+                    statusText.textContent = 'завершено';
+
+                    statusRow.appendChild(checkbox);
+                    statusRow.appendChild(statusText);
+
+                    goalCard.appendChild(title);
+                    goalCard.appendChild(statusRow);
+
+                    // Можно выбирать несколько карточек!
+                    goalCard.addEventListener('click', () => {
+                        goalCard.classList.toggle('selected');
+                        checkbox.textContent = goalCard.classList.contains('selected') ? '✓' : '';
+                        // Кнопка всегда активна
+                        document.getElementById('child-next-btn').disabled = false;
+                    });
+
+                    container.appendChild(goalCard);
+                });
+
+                document.getElementById('child-next-btn').disabled = false;
+            }
+
+        // Расчет первой взрослой черты характера
+        function calculateFirstAdultTrait() {
+            const babyTrait = state.babyTraits[0];
+            const possible = traitsTable.filter(t => t.baby === babyTrait && t.forChildren).map(t => t.adult);
+            if (possible.length > 0) {
+                const idx = Math.floor(Math.random() * possible.length);
+                state.adultTrait1 = possible[idx];
+            } else {
+                state.adultTrait1 = "Не определено";
+            }
+            document.getElementById('adult-trait-1').textContent = state.adultTrait1;
+        }
+
+        // Расчет взрослых жизненных целей на основе детских
+        function calculateAdultLifeGoals() {
+            // Определяем, была ли выбрана хоть одна детская ЖЦ
+            const selectedChildGoals = [];
+            document.querySelectorAll('#child-lifegoals-container .lifegoal-card.selected').forEach(card => {
+                const title = card.querySelector('div:first-child');
+                if (title) selectedChildGoals.push(title.textContent);
+            });
+
+            // Если выбрано хотя бы одно -- обычная логика
+            if (selectedChildGoals.length > 0) {
+                const adultGoals = new Set();
+                selectedChildGoals.forEach(childGoal => {
+                    if (adultLifeGoals[childGoal]) {
+                        adultLifeGoals[childGoal].forEach(adultGoal => {
+                            adultGoals.add(adultGoal);
+                        });
+                    }
+                });
+                state.adultLifeGoals = Array.from(adultGoals);
+                renderAdultLifeGoals();
+                return;
+            }
+
+            // Если не выбрано ни одной детской ЖЦ, показываем "специальные" взрослые ЖЦ
+            // Условия на "Идеальная чистота" и "Невероятная грязь"
+            const specialAll = [
+                "Вижу цель, не вижу препятствий",
+                "Лама с драмой",
+                "Легенда при жизни",
+                "Разгульная жизнь",
+                "Идеальная чистота",
+                "Невероятная грязь",
+                "Тайна Стрейнджервиля"
+            ];
+            // Чистюля/Уважительный
+            const allowClean = [state.adultTrait1, state.adultTrait2].includes("Чистюля") || [state.adultTrait1, state.adultTrait2].includes("Уважительный");
+            // Неряха/Лежебока/Привереда
+            const allowDirty = ["Неряха", "Лежебока", "Привереда"].some(trait => [state.adultTrait1, state.adultTrait2].includes(trait));
+
+            const filteredSpecial = specialAll.filter(goal => {
+                if (goal === "Идеальная чистота") return allowClean;
+                if (goal === "Невероятная грязь") return allowDirty;
+                return true;
+            });
+
+            renderAdultLifeGoals(filteredSpecial);
+        }
+
+        // Отображение взрослых жизненных целей
+        function renderAdultLifeGoals(specialList = null) {
+            const container = document.getElementById('adult-lifegoals-container');
+            container.innerHTML = '';
+            const goals = specialList || state.adultLifeGoals;
+            goals.forEach(goal => {
+                const goalCard = document.createElement('div');
+                goalCard.className = 'lifegoal-card';
+
+                const title = document.createElement('div');
+                title.className = 'lifegoal-title';
+                title.textContent = goal;
+
+                const statusRow = document.createElement('div');
+                statusRow.className = 'lifegoal-status-row';
+
+                const checkbox = document.createElement('div');
+                checkbox.className = 'checkbox';
+
+                const statusText = document.createElement('span');
+                statusText.className = 'status-text';
+                statusText.textContent = 'завершено';
+
+                statusRow.appendChild(checkbox);
+                statusRow.appendChild(statusText);
+
+                goalCard.appendChild(title);
+                goalCard.appendChild(statusRow);
+
+                // Можно выбирать несколько карточек!
+                goalCard.addEventListener('click', () => {
+                    goalCard.classList.toggle('selected');
+                    checkbox.textContent = goalCard.classList.contains('selected') ? '✓' : '';
+                    state.adultLifeGoal = null; // если нужно, можно хранить массив выбранных
+                    document.getElementById('teen-next-btn').disabled = false;
+                });
+
+                container.appendChild(goalCard);
+            });
+            document.getElementById('teen-next-btn').disabled = (goals.length === 0);
+        }
+
+        // Расчет второй взрослой черты характера
+        function calculateSecondAdultTrait() {
+            const babyTrait = state.babyTraits[1];
+            let possible = traitsTable.filter(t => t.baby === babyTrait).map(t => t.adult);
+            possible = possible.filter(trait => trait !== state.adultTrait1);
+            possible = possible.filter(trait => {
+                const entry = traitsTable.find(t => t.baby === babyTrait && t.adult === trait);
+                return entry && !(entry.contradicts || []).includes(state.adultTrait1);
+            });
+            if (possible.length > 0) {
+                const idx = Math.floor(Math.random() * possible.length);
+                state.adultTrait2 = possible[idx];
+            } else {
+                state.adultTrait2 = "Не определено";
+            }
+            document.getElementById('adult-trait-2').textContent = state.adultTrait2;
+        }
+
+        // Расчет третьей взрослой черты характера
+        function calculateThirdAdultTrait() {
+            const babyTrait = state.babyTraits[2];
+            let possible = traitsTable.filter(t => t.baby === babyTrait).map(t => t.adult);
+            possible = possible.filter(trait => trait !== state.adultTrait1 && trait !== state.adultTrait2);
+            possible = possible.filter(trait => {
+                const entry = traitsTable.find(t => t.baby === babyTrait && t.adult === trait);
+                return entry
+                    && !(entry.contradicts || []).includes(state.adultTrait1)
+                    && !(entry.contradicts || []).includes(state.adultTrait2);
+            });
+            if (possible.length > 0) {
+                const idx = Math.floor(Math.random() * possible.length);
+                state.adultTrait3 = possible[idx];
+            } else {
+                state.adultTrait3 = "Не определено";
+            }
+            document.getElementById('final-trait-1').textContent = state.adultTrait1;
+            document.getElementById('final-trait-2').textContent = state.adultTrait2;
+            document.getElementById('final-trait-3').textContent = state.adultTrait3;
+        }
+
+        // Расчет карьер
+        function calculateCareers() {
+            // 1. Собрать все карьеры по 3 ЧХ
+            let allCareers = [];
+            [state.adultTrait1, state.adultTrait2, state.adultTrait3].forEach(trait => {
+                if (traitCareers[trait]) {
+                    allCareers = allCareers.concat(traitCareers[trait]);
+                }
+            });
+
+            // 2. Распределить по категориям и посчитать повторы
+            let careersByCategory = {};
+            let countsByCategory = {};
+            Object.keys(careers).forEach(cat => {
+                careersByCategory[cat] = [];
+                countsByCategory[cat] = {};
+            });
+
+            allCareers.forEach(career => {
+                for (let cat in careers) {
+                    if (careers[cat].includes(career)) {
+                        careersByCategory[cat].push(career);
+                        countsByCategory[cat][career] = (countsByCategory[cat][career] || 0) + 1;
+                    }
+                }
+            });
+
+            // 3. Итоговый массив рекомендаций (без повторов)
+            let recommendations = [];
+
+            // 4. Проходы по категориям: сначала по одной, потом второй, ... до четырех на категорию
+            for (let round = 1; round <= 4; round++) {
+                for (let cat of Object.keys(careersByCategory)) {
+                    if (recommendations.length >= 8) break;
+                    if (careersByCategory[cat].length === 0) continue;
+
+                    let countMap = countsByCategory[cat];
+                    let allUnique = Object.keys(countMap);
+                    let available = allUnique.filter(career => !recommendations.some(r => r.career === career));
+
+                    if (available.length === 0) continue;
+
+                    let weighted = [];
+                    available.forEach(career => {
+                        let count = countMap[career];
+                        if (count === 2) {
+                            for (let i = 0; i < 4; i++) weighted.push(career);
+                        } else if (count >= 3) {
+                            for (let i = 0; i < 10; i++) weighted.push(career);
+                        } else {
+                            weighted.push(career);
+                        }
+                    });
+
+                    let picksInRound = 1;
+                    if (available.length < picksInRound) picksInRound = available.length;
+
+                    for (let pi = 0; pi < picksInRound; pi++) {
+                        if (recommendations.length >= 8) break;
+                        if (weighted.length === 0) break;
+                        let idx = Math.floor(Math.random() * weighted.length);
+                        let pick = weighted[idx];
+                        // Добавляем как {category, career}
+                        if (!recommendations.some(r => r.career === pick)) {
+                            recommendations.push({category: cat, career: pick});
+                        }
+                        weighted = weighted.filter(c => c !== pick);
+                    }
+                }
+            }
+
+            // 5. Сортировка по порядку категорий в базе
+            const categoryOrder = Object.keys(careers);
+            recommendations.sort((a, b) => {
+                let ai = categoryOrder.indexOf(a.category);
+                let bi = categoryOrder.indexOf(b.category);
+                return ai - bi;
+            });
+
+            // 6. Обновляем UI: заполняем только тексты, а не всю структуру innerHTML!
+            for (let i = 0; i < 8; i++) {
+                const card = document.getElementById(`career-${i+1}`);
+                // Найти родительскую .career-card
+                const parent = card.closest('.career-card');
+                if (recommendations[i]) {
+                    if (parent) {
+                        const catElem = parent.querySelector('.career-category');
+                        if (catElem) catElem.textContent = recommendations[i].category;
+                    }
+                    card.textContent = recommendations[i].career;
+                } else {
+                    if (parent) {
+                        const catElem = parent.querySelector('.career-category');
+                        if (catElem) catElem.textContent = "";
+                    }
+                    card.textContent = "Не определено";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
