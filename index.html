@@ -1198,37 +1198,17 @@
             goals.forEach(goal => {
                 const goalCard = document.createElement('div');
                 goalCard.className = 'lifegoal-card';
-
+        
                 const title = document.createElement('div');
                 title.className = 'lifegoal-title';
                 title.textContent = goal;
-
-                const statusRow = document.createElement('div');
-                statusRow.className = 'lifegoal-status-row';
-
-                const checkbox = document.createElement('div');
-                checkbox.className = 'checkbox';
-
-                const statusText = document.createElement('span');
-                statusText.className = 'status-text';
-                statusText.textContent = 'завершено';
-
-                statusRow.appendChild(checkbox);
-                statusRow.appendChild(statusText);
-
+        
+                // ВОТ ЗДЕСЬ! Просто добавляем название цели, без чекбокса и без обработчика
                 goalCard.appendChild(title);
-                goalCard.appendChild(statusRow);
-
-                // Можно выбирать несколько карточек!
-                goalCard.addEventListener('click', () => {
-                    goalCard.classList.toggle('selected');
-                    checkbox.textContent = goalCard.classList.contains('selected') ? '✓' : '';
-                    state.adultLifeGoal = null; // если нужно, можно хранить массив выбранных
-                    document.getElementById('teen-next-btn').disabled = false;
-                });
-
+        
                 container.appendChild(goalCard);
             });
+            // Кнопка становится активной, если есть хотя бы одна ЖЦ
             document.getElementById('teen-next-btn').disabled = (goals.length === 0);
         }
 
