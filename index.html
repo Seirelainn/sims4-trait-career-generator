@@ -352,7 +352,6 @@
             text-align: center;
             color: #333;
         }
-        }
         
         .checkbox {
             width: 24px;
@@ -491,6 +490,28 @@
             .skills-grid {
                 grid-template-columns: 1fr;
             }
+        }
+        .text-link-btn {
+            background: none;
+            border: none;
+            color: #737373;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 1.12rem;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding: 0;
+            font-family: inherit;
+        }
+        .text-link-btn:active,
+        .text-link-btn:focus {
+            color: #404040;
+            outline: none;
+        }
+        .save-link-output {
+            word-break: break-all;
+            font-size: 1rem;
+            margin-top: 0.5em;
         }
     </style>
 </head>
@@ -674,6 +695,11 @@
             <div class="center">
                 <button class="btn" id="restart-btn">Начать заново</button>
             </div>
+        </div>
+
+        <div class="save-link-container center">
+            <button id="save-link-btn" class="text-link-btn">Сохранить сгенерированные этапы по ссылке, чтобы продолжить позже</button>
+            <div id="save-link-output" class="save-link-output" style="margin-top:10px;"></div>
         </div>
     </div>
 
@@ -885,22 +911,20 @@
                 imagination: null
             },
             childLifeGoals: [],
+            selectedChildLifeGoals: [],
             adultTrait1: "",
-            adultLifeGoal: "",
+            adultLifeGoals: [],
+            selectedAdultLifeGoals: [],
             adultTrait2: "",
             adultTrait3: "",
             careers: []
         };
 
-        // --------- Инициализация ---------
-        document.addEventListener('DOMContentLoaded', () => {
-            initBabyTraits();
-            initSkillLevels();
-            setupEventListeners();
-        });
+        // ---- ФУНКЦИИ ----
 
         function initBabyTraits() {
             const container = document.getElementById('baby-traits-container');
+            container.innerHTML = "";
             babyTraits.forEach(trait => {
                 const traitCard = document.createElement('div');
                 traitCard.className = 'trait-card';
@@ -915,8 +939,7 @@
                 container.appendChild(traitCard);
             });
         }
-        
-        // Выбор черты малыша
+
         function updateBabyTraitOrderNumbers() {
             const cards = document.querySelectorAll('#baby-traits-container .trait-card');
             cards.forEach(card => {
@@ -931,22 +954,22 @@
             });
         }
 
-        // Функция обновления номеров
         function selectBabyTrait(card, trait) {
             const container = document.getElementById('baby-traits-container');
             const allCards = Array.from(container.querySelectorAll('.trait-card'));
-            const traitNames = allCards.map(c => c.querySelector('span:last-child').textContent);
 
-            // Если уже выбрана - снимаем выбор
-            if (state.babyTraits.includes(trait)) {
-                state.babyTraits = state.babyTraits.filter(t => t !== trait);
+            // Чистим массив только до строк
+            state.babyTraits = state.babyTraits.filter(t => typeof t === "string");
+
+            // Логика выбора/отмены
+            const idx = state.babyTraits.indexOf(trait);
+            if (idx !== -1) {
+                state.babyTraits.splice(idx, 1);
                 card.classList.remove('selected');
-            } else if (state.babyTraits.length < 3 && !card.classList.contains('disabled')) {
-                // Не была выбрана и не disabled - выбираем
+            } else if (state.babyTraits.length < 3 && !card.classList.contains('disabled') && typeof trait === "string") {
                 state.babyTraits.push(trait);
                 card.classList.add('selected');
             } else {
-                // Если выбрано 3, не даём выбирать больше, ничего не делаем (без alert)
                 return;
             }
 
@@ -980,8 +1003,11 @@
             updateBabyNextButton();
         }
 
-        // Инициализация шкал навыков
         function initSkillLevels() {
+            document.getElementById('thinking-levels').innerHTML = '';
+            document.getElementById('movement-levels').innerHTML = '';
+            document.getElementById('communication-levels').innerHTML = '';
+            document.getElementById('imagination-levels').innerHTML = '';
             for (let i = 0; i <= 5; i++) {
                 const thinkingLevel = createLevelElement(i, 'thinking');
                 document.getElementById('thinking-levels').appendChild(thinkingLevel);
@@ -994,7 +1020,6 @@
             }
         }
 
-        // Создание элемента уровня навыка
         function createLevelElement(level, skill) {
             const levelElement = document.createElement('div');
             levelElement.className = 'level';
@@ -1003,7 +1028,6 @@
             return levelElement;
         }
 
-        // Выбор уровня навыка, Сброс выбранных уровней, Установка нового уровня, Обновление состояния кнопки
         function selectSkillLevel(element, level, skill) {
             const parent = element.parentElement;
             const siblings = parent.querySelectorAll('.level');
@@ -1013,18 +1037,16 @@
             updateBabyNextButton();
         }
 
-        // Обновление состояния кнопки перехода
         function updateBabyNextButton() {
             const btn = document.getElementById('baby-next-btn');
             const traitsSelected = state.babyTraits.length === 3;
             const skillsSelected = state.skills.thinking !== null &&
-                                state.skills.movement !== null &&
-                                state.skills.communication !== null &&
-                                state.skills.imagination !== null;
+                state.skills.movement !== null &&
+                state.skills.communication !== null &&
+                state.skills.imagination !== null;
             btn.disabled = !(traitsSelected && skillsSelected);
         }
 
-        // Настройка обработчиков событий
         function setupEventListeners() {
             document.getElementById('baby-next-btn').addEventListener('click', () => {
                 calculateChildLifeGoals();
@@ -1033,7 +1055,7 @@
                 document.getElementById('child-stage').classList.add('fade-in');
                 document.getElementById('child-stage').scrollIntoView({ behavior: 'smooth' });
             });
-            
+
             document.getElementById('child-next-btn').addEventListener('click', () => {
                 calculateAdultLifeGoals();
                 calculateSecondAdultTrait();
@@ -1041,7 +1063,7 @@
                 document.getElementById('teen-stage').classList.add('fade-in');
                 document.getElementById('teen-stage').scrollIntoView({ behavior: 'smooth' });
             });
-            
+
             document.getElementById('teen-next-btn').addEventListener('click', () => {
                 calculateThirdAdultTrait();
                 calculateCareers();
@@ -1049,13 +1071,14 @@
                 document.getElementById('adult-stage').classList.add('fade-in');
                 document.getElementById('adult-stage').scrollIntoView({ behavior: 'smooth' });
             });
-            
+
             document.getElementById('restart-btn').addEventListener('click', () => {
-                location.reload();
+                window.location.href = window.location.origin + window.location.pathname;
             });
         }
 
-        // Расчет детских жизненных целей на основе навыков
+        // ---- CHILD LIFE GOALS ----
+
         function calculateChildLifeGoals() {
             const goals = [];
             const skills = state.skills;
@@ -1071,67 +1094,70 @@
                 goals.push(childLifeGoals["4 передвижение,3 общение"]);
             if (skills.imagination >= 4 && skills.thinking >= 3)
                 goals.push(childLifeGoals["4 воображение,3 мышление"]);
-            state.childLifeGoals = [...new Set(goals)];
+            // Фильтруем только строки
+            state.childLifeGoals = [...new Set(goals)].filter(goal => typeof goal === "string");
             renderChildLifeGoals();
         }
 
-        // Отображение детских жизненых целей
-            function renderChildLifeGoals() {
-                const container = document.getElementById('child-lifegoals-container');
-                container.innerHTML = '';
+        function renderChildLifeGoals() {
+            const container = document.getElementById('child-lifegoals-container');
+            container.innerHTML = '';
 
-                if (state.childLifeGoals.length === 0) {
-                    // Нет доступных ЖЦ — показываем заглушку с нужным стилем
-                    const failCard = document.createElement('div');
-                    failCard.className = 'lifegoal-card nohover';
-                    failCard.textContent = "Вы не можете выполнять детские жизненные цели, так как не набрали достаточно навыков!";
-                    container.appendChild(failCard);
-                    document.getElementById('child-next-btn').disabled = false;
-                    return;
-                }
-
-                state.childLifeGoals.forEach(goal => {
-                    const goalCard = document.createElement('div');
-                    goalCard.className = 'lifegoal-card';
-
-                    const title = document.createElement('div');
-                    title.className = 'lifegoal-title';
-                    title.textContent = goal;
-
-                    const statusRow = document.createElement('div');
-                    statusRow.className = 'lifegoal-status-row';
-
-                    const checkbox = document.createElement('div');
-                    checkbox.className = 'checkbox';
-
-                    const statusText = document.createElement('span');
-                    statusText.className = 'status-text';
-                    statusText.textContent = 'завершено';
-
-                    statusRow.appendChild(checkbox);
-                    statusRow.appendChild(statusText);
-
-                    goalCard.appendChild(title);
-                    goalCard.appendChild(statusRow);
-
-                    // Можно выбирать несколько карточек!
-                    goalCard.addEventListener('click', () => {
-                        goalCard.classList.toggle('selected');
-                        checkbox.textContent = goalCard.classList.contains('selected') ? '✓' : '';
-                        // Кнопка всегда активна
-                        document.getElementById('child-next-btn').disabled = false;
-                    });
-
-                    container.appendChild(goalCard);
-                });
-
+            if (state.childLifeGoals.length === 0) {
+                const failCard = document.createElement('div');
+                failCard.className = 'lifegoal-card nohover';
+                failCard.textContent = "Вы не можете выполнять детские жизненные цели, так как не набрали достаточно навыков!";
+                container.appendChild(failCard);
                 document.getElementById('child-next-btn').disabled = false;
+                return;
             }
 
-        // Расчет первой взрослой черты характера
+            state.childLifeGoals.forEach(goal => {
+                if (typeof goal !== "string") return;
+                const goalCard = document.createElement('div');
+                goalCard.className = 'lifegoal-card';
+
+                const title = document.createElement('div');
+                title.className = 'lifegoal-title';
+                title.textContent = goal;
+
+                const statusRow = document.createElement('div');
+                statusRow.className = 'lifegoal-status-row';
+
+                const checkbox = document.createElement('div');
+                checkbox.className = 'checkbox';
+
+                const statusText = document.createElement('span');
+                statusText.className = 'status-text';
+                statusText.textContent = 'завершено';
+
+                statusRow.appendChild(checkbox);
+                statusRow.appendChild(statusText);
+
+                goalCard.appendChild(title);
+                goalCard.appendChild(statusRow);
+
+                goalCard.addEventListener('click', () => {
+                    goalCard.classList.toggle('selected');
+                    checkbox.textContent = goalCard.classList.contains('selected') ? '✓' : '';
+                    // Сохраняем только строки
+                    state.selectedChildLifeGoals = Array.from(container.querySelectorAll('.lifegoal-card.selected'))
+                        .map(card => card.querySelector('.lifegoal-title').textContent)
+                        .filter(x => typeof x === "string");
+                    document.getElementById('child-next-btn').disabled = false;
+                });
+
+                container.appendChild(goalCard);
+            });
+
+            document.getElementById('child-next-btn').disabled = false;
+        }
+
+        // ---- ADULT TRAITS & LIFE GOALS ----
+
         function calculateFirstAdultTrait() {
             const babyTrait = state.babyTraits[0];
-            const possible = traitsTable.filter(t => t.baby === babyTrait && t.forChildren).map(t => t.adult);
+            const possible = traitsTable.filter(t => t.baby === babyTrait && t.forChildren).map(t => t.adult).filter(x => typeof x === "string");
             if (possible.length > 0) {
                 const idx = Math.floor(Math.random() * possible.length);
                 state.adultTrait1 = possible[idx];
@@ -1141,16 +1167,13 @@
             document.getElementById('adult-trait-1').textContent = state.adultTrait1;
         }
 
-        // Расчет взрослых жизненных целей на основе детских
         function calculateAdultLifeGoals() {
-            // Определяем, была ли выбрана хоть одна детская ЖЦ
             const selectedChildGoals = [];
             document.querySelectorAll('#child-lifegoals-container .lifegoal-card.selected').forEach(card => {
                 const title = card.querySelector('div:first-child');
                 if (title) selectedChildGoals.push(title.textContent);
             });
 
-            // Если выбрано хотя бы одно -- обычная логика
             if (selectedChildGoals.length > 0) {
                 const adultGoals = new Set();
                 selectedChildGoals.forEach(childGoal => {
@@ -1160,13 +1183,12 @@
                         });
                     }
                 });
-                state.adultLifeGoals = Array.from(adultGoals);
+                state.adultLifeGoals = Array.from(adultGoals).filter(x => typeof x === "string");
                 renderAdultLifeGoals();
                 return;
             }
 
             // Если не выбрано ни одной детской ЖЦ, показываем "специальные" взрослые ЖЦ
-            // Условия на "Идеальная чистота" и "Невероятная грязь"
             const specialAll = [
                 "Вижу цель, не вижу препятствий",
                 "Лама с драмой",
@@ -1176,9 +1198,7 @@
                 "Невероятная грязь",
                 "Тайна Стрейнджервиля"
             ];
-            // Чистюля/Уважительный
             const allowClean = [state.adultTrait1, state.adultTrait2].includes("Чистюля") || [state.adultTrait1, state.adultTrait2].includes("Уважительный");
-            // Неряха/Лежебока/Привереда
             const allowDirty = ["Неряха", "Лежебока", "Привереда"].some(trait => [state.adultTrait1, state.adultTrait2].includes(trait));
 
             const filteredSpecial = specialAll.filter(goal => {
@@ -1190,35 +1210,35 @@
             renderAdultLifeGoals(filteredSpecial);
         }
 
-        // Отображение взрослых жизненных целей
         function renderAdultLifeGoals(specialList = null) {
             const container = document.getElementById('adult-lifegoals-container');
             container.innerHTML = '';
-            const goals = specialList || state.adultLifeGoals;
+            const goals = (specialList || state.adultLifeGoals).filter(x => typeof x === "string");
             goals.forEach(goal => {
                 const goalCard = document.createElement('div');
                 goalCard.className = 'lifegoal-card';
-        
+
                 const title = document.createElement('div');
                 title.className = 'lifegoal-title';
                 title.textContent = goal;
-        
+
                 goalCard.appendChild(title);
-        
-                // Кликабельный выбор любого количества (selected-стиль)
+
                 goalCard.addEventListener('click', () => {
                     goalCard.classList.toggle('selected');
+                    state.selectedAdultLifeGoals = Array.from(container.querySelectorAll('.lifegoal-card.selected'))
+                        .map(card => card.querySelector('.lifegoal-title').textContent)
+                        .filter(x => typeof x === "string");
                 });
-        
+
                 container.appendChild(goalCard);
             });
             document.getElementById('teen-next-btn').disabled = (goals.length === 0);
         }
 
-        // Расчет второй взрослой черты характера
         function calculateSecondAdultTrait() {
             const babyTrait = state.babyTraits[1];
-            let possible = traitsTable.filter(t => t.baby === babyTrait).map(t => t.adult);
+            let possible = traitsTable.filter(t => t.baby === babyTrait).map(t => t.adult).filter(x => typeof x === "string");
             possible = possible.filter(trait => trait !== state.adultTrait1);
             possible = possible.filter(trait => {
                 const entry = traitsTable.find(t => t.baby === babyTrait && t.adult === trait);
@@ -1233,10 +1253,9 @@
             document.getElementById('adult-trait-2').textContent = state.adultTrait2;
         }
 
-        // Расчет третьей взрослой черты характера
         function calculateThirdAdultTrait() {
             const babyTrait = state.babyTraits[2];
-            let possible = traitsTable.filter(t => t.baby === babyTrait).map(t => t.adult);
+            let possible = traitsTable.filter(t => t.baby === babyTrait).map(t => t.adult).filter(x => typeof x === "string");
             possible = possible.filter(trait => trait !== state.adultTrait1 && trait !== state.adultTrait2);
             possible = possible.filter(trait => {
                 const entry = traitsTable.find(t => t.baby === babyTrait && t.adult === trait);
@@ -1255,17 +1274,18 @@
             document.getElementById('final-trait-3').textContent = state.adultTrait3;
         }
 
-        // Расчет карьер
+        // ---- CAREERS ----
+
         function calculateCareers() {
-            // 1. Собрать все карьеры по 3 ЧХ
             let allCareers = [];
             [state.adultTrait1, state.adultTrait2, state.adultTrait3].forEach(trait => {
                 if (traitCareers[trait]) {
                     allCareers = allCareers.concat(traitCareers[trait]);
                 }
             });
+            // Только строки!
+            allCareers = allCareers.filter(x => typeof x === "string");
 
-            // 2. Распределить по категориям и посчитать повторы
             let careersByCategory = {};
             let countsByCategory = {};
             Object.keys(careers).forEach(cat => {
@@ -1282,10 +1302,7 @@
                 }
             });
 
-            // 3. Итоговый массив рекомендаций (без повторов)
             let recommendations = [];
-
-            // 4. Проходы по категориям: сначала по одной, потом второй, ... до четырех на категорию
             for (let round = 1; round <= 4; round++) {
                 for (let cat of Object.keys(careersByCategory)) {
                     if (recommendations.length >= 8) break;
@@ -1317,7 +1334,6 @@
                         if (weighted.length === 0) break;
                         let idx = Math.floor(Math.random() * weighted.length);
                         let pick = weighted[idx];
-                        // Добавляем как {category, career}
                         if (!recommendations.some(r => r.career === pick)) {
                             recommendations.push({category: cat, career: pick});
                         }
@@ -1326,7 +1342,8 @@
                 }
             }
 
-            // 5. Сортировка по порядку категорий в базе
+            state.careers = recommendations.slice();
+
             const categoryOrder = Object.keys(careers);
             recommendations.sort((a, b) => {
                 let ai = categoryOrder.indexOf(a.category);
@@ -1334,10 +1351,8 @@
                 return ai - bi;
             });
 
-            // 6. Обновляем UI: заполняем только тексты, а не всю структуру innerHTML!
             for (let i = 0; i < 8; i++) {
                 const card = document.getElementById(`career-${i+1}`);
-                // Найти родительскую .career-card
                 const parent = card.closest('.career-card');
                 if (recommendations[i]) {
                     if (parent) {
@@ -1354,6 +1369,203 @@
                 }
             }
         }
+
+        function renderCareersFromState() {
+            // Получаем порядок категорий из базы careers
+            const categoryOrder = Object.keys(careers);
+            // Копируем и сортируем careers по категориям
+            let sortedCareers = Array.isArray(state.careers) ? state.careers.slice() : [];
+            sortedCareers.sort((a, b) => {
+                let ai = categoryOrder.indexOf(a.category);
+                let bi = categoryOrder.indexOf(b.category);
+                return ai - bi;
+            });
+
+            for (let i = 0; i < 8; i++) {
+                const card = document.getElementById(`career-${i+1}`);
+                const parent = card.closest('.career-card');
+                if (sortedCareers[i]) {
+                    if (parent) {
+                        const catElem = parent.querySelector('.career-category');
+                        if (catElem) catElem.textContent = sortedCareers[i].category || "";
+                    }
+                    card.textContent = sortedCareers[i].career || "Не определено";
+                } else {
+                    if (parent) {
+                        const catElem = parent.querySelector('.career-category');
+                        if (catElem) catElem.textContent = "";
+                    }
+                    card.textContent = "Не определено";
+                }
+            }
+        }
+
+        // ---- СЕРИАЛИЗАЦИЯ/ВОССТАНОВЛЕНИЕ ----
+
+        function getStateForUrl() {
+            // Перед сериализацией фильтруем все массивы только до строк
+            ["babyTraits","childLifeGoals","selectedChildLifeGoals","adultLifeGoals","selectedAdultLifeGoals"].forEach(key => {
+                if (Array.isArray(state[key])) {
+                    state[key] = state[key].filter(x => typeof x === "string");
+                }
+            });
+            try {
+                // ВАЖНО: используем Unicode-safe base64
+                return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(state)))));
+            } catch (e) {
+                alert('Ошибка сериализации состояния!\n\n' + e.message);
+                return '';
+            }
+        }
+
+        function loadStateFromUrl() {
+            const url = new URL(window.location);
+            const stateParam = url.searchParams.get("state");
+            if (stateParam) {
+                try {
+                    const decoded = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(stateParam)))));
+                    for (const key in decoded) {
+                        if (Array.isArray(decoded[key])) {
+                            // Спецобработка для careers: это массив объектов
+                            if (key === "careers") {
+                                state[key] = decoded[key].map(x => typeof x === "object" && x !== null ? {...x} : {});
+                            } else {
+                                state[key] = decoded[key].filter(x => typeof x === "string");
+                            }
+                        } else if (typeof decoded[key] === "object" && decoded[key] !== null) {
+                            state[key] = { ...decoded[key] };
+                        } else {
+                            state[key] = decoded[key];
+                        }
+                    }
+                } catch (e) {
+                    alert("Ошибка загрузки сохранённого состояния.");
+                }
+            }
+        }
+
+        function restoreUIFromState() {
+            if (!Array.isArray(state.babyTraits)) {
+                state.babyTraits = [];
+            }
+            // 1. Восстановить черты малыша
+            const babyTraitsContainer = document.getElementById('baby-traits-container');
+            babyTraitsContainer.innerHTML = '';
+            initBabyTraits();
+
+            // ВОССТАНОВЛЕНИЕ ВЫДЕЛЕНИЯ
+            const allCards = babyTraitsContainer.querySelectorAll('.trait-card');
+            allCards.forEach(card => {
+                const traitText = card.querySelector('span:last-child').textContent;
+                if (state.babyTraits.includes(traitText)) {
+                    card.classList.add('selected');
+                }
+            });
+
+            updateBabyTraitOrderNumbers();
+
+            // 2. Восстановить уровни навыков
+            initSkillLevels();
+            Object.keys(state.skills).forEach(skill => {
+                if (state.skills[skill] !== null) {
+                    const levels = document.getElementById(`${skill}-levels`).querySelectorAll('.level');
+                    levels.forEach(levelEl => {
+                        if (parseInt(levelEl.textContent, 10) === state.skills[skill]) {
+                            levelEl.classList.add('selected');
+                        } else {
+                            levelEl.classList.remove('selected');
+                        }
+                    });
+                }
+            });
+
+            // 3. Показываем нужные этапы и восстанавливаем выборы этапов
+            document.getElementById('baby-stage').style.display = 'block';
+            document.getElementById('child-stage').style.display = 'none';
+            document.getElementById('teen-stage').style.display = 'none';
+            document.getElementById('adult-stage').style.display = 'none';
+
+            if (state.babyTraits.length === 3 &&
+                Object.values(state.skills).every(v => v !== null)) {
+                document.getElementById('child-stage').style.display = 'block';
+                
+                calculateChildLifeGoals();
+
+                // Восстановление первой взрослой черты
+                if (state.adultTrait1 && state.adultTrait1 !== "Не определено") {
+                    document.getElementById('adult-trait-1').textContent = state.adultTrait1;
+                } else {
+                    calculateFirstAdultTrait();
+                }
+
+                // Восстановление выбранных целей ребенка
+                document.querySelectorAll('#child-lifegoals-container .lifegoal-card').forEach(card => {
+                    const title = card.querySelector('.lifegoal-title').textContent;
+                    if (state.selectedChildLifeGoals.includes(title)) {
+                        card.classList.add('selected');
+                        card.querySelector('.checkbox').textContent = '✓';
+                    }
+                });
+            }
+
+            // Восстановление второй взрослой черты
+            if (state.selectedChildLifeGoals && state.selectedChildLifeGoals.length > 0) {
+                document.getElementById('teen-stage').style.display = 'block';
+                calculateAdultLifeGoals();
+                if (state.adultTrait2 && state.adultTrait2 !== "Не определено") {
+                    document.getElementById('adult-trait-2').textContent = state.adultTrait2;
+                } else {
+                    calculateSecondAdultTrait();
+                }
+
+                // Восстановление выбранных целей подростка
+                document.querySelectorAll('#adult-lifegoals-container .lifegoal-card').forEach(card => {
+                    const title = card.querySelector('.lifegoal-title').textContent;
+                    if (state.selectedAdultLifeGoals.includes(title)) {
+                        card.classList.add('selected');
+                    }
+                });
+            }
+
+            // Восстановление третьей взрослой черты и карьер
+            if (state.adultTrait2 && state.adultTrait2 !== "Не определено" &&
+                state.adultTrait3 && state.adultTrait3 !== "Не определено") {
+                document.getElementById('adult-stage').style.display = 'block';
+
+                document.getElementById('final-trait-1').textContent = state.adultTrait1;
+                document.getElementById('final-trait-2').textContent = state.adultTrait2;
+                document.getElementById('final-trait-3').textContent = state.adultTrait3;
+
+                // Вот тут: если careers уже есть — только рисуем, иначе генерируем
+                if (state.careers && Array.isArray(state.careers) && state.careers.length > 0) {
+                    renderCareersFromState();
+                } else {
+                    calculateCareers();
+                }
+            } else if (state.adultTrait2 && state.adultTrait2 !== "Не определено") {
+                // если только 2 черты, а третьей нет — сгенерировать третью и карьеры
+                calculateThirdAdultTrait();
+                calculateCareers();
+            }
+
+            updateBabyNextButton();
+        }
+
+        // ---- Сохранить ссылку ----
+        document.getElementById('save-link-btn').addEventListener('click', function() {
+            const stateString = getStateForUrl();
+            if (!stateString) return;
+            const link = `${window.location.origin}${window.location.pathname}?state=${stateString}`;
+            const out = document.getElementById('save-link-output');
+            out.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+        });
+
+        // ---- При загрузке страницы ----
+        window.addEventListener('DOMContentLoaded', function() {
+            loadStateFromUrl();
+            restoreUIFromState();
+            setupEventListeners();
+        });
     </script>
 </body>
 </html>
